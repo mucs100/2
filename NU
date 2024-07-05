@@ -1,0 +1,37 @@
+import pandas as pd
+from sklearn.preprocessing import RobustScaler
+from scipy import stats
+
+# Load the data
+data = pd.read_csv('missing (1).csv')
+
+print("Original Data:")
+print(data)
+
+# Handling Missing Values
+data.fillna(data.mean(), inplace=True)
+print("\nData after handling missing values:")
+print(data.head())
+
+# Feature Scaling (RobustScaler)
+scaler = RobustScaler()
+data_scaled = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+print("\nData after feature scaling:")
+print(data_scaled.head())
+
+# Handling Outliers (z-score)
+z_scores = stats.zscore(data_scaled)
+threshold = 3
+outliers_indices = (abs(z_scores) > threshold).any(axis=1)
+data_no_outliers = data_scaled[~outliers_indices]
+print("\nData after handling outliers:")
+print(data_no_outliers.head())
+
+# Normalization (Min-Max Scaling)
+data_normalized = (data_no_outliers - data_no_outliers.min()) / (data_no_outliers.max() - data_no_outliers.min())
+print("\nData after normalization:")
+print(data_normalized.head())
+
+# Save the Preprocessed Data
+data_normalized.to_csv('preprocessed_data.csv', index=False)
+print("\nPreprocessed data saved to preprocessed_data.csv")
